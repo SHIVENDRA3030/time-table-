@@ -30,29 +30,29 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg-start: #091311;
-  --bg-mid: #0c1f1c;
-  --bg-end: #102723;
-  --ink-900: #e5f4ef;
-  --ink-800: #cfe5df;
-  --ink-700: #cce0db;
-  --ink-600: #b5d0c9;
-  --ink-500: #99b9b1;
-  --surface: rgba(11, 28, 25, 0.75);
-  --surface-strong: rgba(11, 28, 25, 0.95);
-  --surface-stroke: rgba(132, 180, 170, 0.45);
-  --accent-700: #169186;
-  --accent-600: #1bb3a4;
-  --accent-500: #2cd4c3;
-  --accent-100: rgba(44, 212, 195, 0.24);
-  --warning-600: #f0b84f;
-  --danger-600: #f57f97;
-  --ok-600: #59d493;
-  --nav-bg: rgba(7, 36, 33, 0.82);
-  --top-gradient-soft: rgba(255, 255, 255, 0.06);
-  --top-gradient-accent: rgba(44, 212, 195, 0.08);
-  --scroll-thumb: rgba(44, 212, 195, 0.35);
-  --scroll-track: rgba(255, 255, 255, 0.07);
+  --bg-start: #020617;
+  --bg-mid: #070e1c;
+  --bg-end: #0f172a;
+  --ink-900: #ffffff;
+  --ink-800: #f1f5f9;
+  --ink-700: #e2e8f0;
+  --ink-600: #cbd5e1;
+  --ink-500: #94a3b8;
+  --surface: rgba(15, 23, 42, 0.7);
+  --surface-strong: rgba(15, 23, 42, 0.95);
+  --surface-stroke: rgba(255, 255, 255, 0.12);
+  --accent-700: #115e59;
+  --accent-600: #14b8a6;
+  --accent-500: #2dd4bf;
+  --accent-100: rgba(45, 212, 191, 0.15);
+  --warning-600: #fbbf24;
+  --danger-600: #f43f5e;
+  --ok-600: #34d399;
+  --nav-bg: rgba(2, 6, 23, 0.85);
+  --top-gradient-soft: rgba(255, 255, 255, 0.04);
+  --top-gradient-accent: rgba(45, 212, 191, 0.05);
+  --scroll-thumb: rgba(255, 255, 255, 0.2);
+  --scroll-track: rgba(255, 255, 255, 0.03);
 }
 
 * {
@@ -281,6 +281,7 @@ textarea {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -292,10 +293,12 @@ textarea {
     transform: scale(0.98);
     opacity: 0.85;
   }
+
   70% {
     transform: scale(1.05);
     opacity: 0;
   }
+
   100% {
     transform: scale(1.06);
     opacity: 0;
@@ -322,6 +325,7 @@ textarea {
     transform: translateY(8px) scale(0.995);
     filter: blur(3px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -334,6 +338,7 @@ textarea {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+
   to {
     opacity: 0;
     transform: translateY(-5px) scale(0.997);
@@ -350,7 +355,7 @@ textarea {
   background: color-mix(in oklab, var(--surface-strong) 88%, transparent);
 }
 
-.hbar > span {
+.hbar>span {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: inherit;
@@ -363,6 +368,7 @@ textarea {
   from {
     width: 0%;
   }
+
   to {
     width: var(--fill);
   }
@@ -370,11 +376,9 @@ textarea {
 
 .metric-card {
   background:
-    linear-gradient(
-      145deg,
+    linear-gradient(145deg,
       color-mix(in oklab, var(--metric-accent, var(--accent-500)) 18%, var(--surface-strong)),
-      var(--surface-strong)
-    );
+      var(--surface-strong));
   border-color: color-mix(in oklab, var(--metric-accent, var(--accent-500)) 26%, var(--surface-stroke));
 }
 
@@ -406,6 +410,7 @@ textarea {
     opacity: 0;
     transform: translateY(26px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
