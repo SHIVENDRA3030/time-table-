@@ -56,8 +56,8 @@ const Layout = () => {
 
     const getNavClass = ({ isActive }) =>
         `rounded-lg px-3 py-2 text-sm font-semibold transition ${isActive
-            ? 'bg-white/95 text-teal-800 shadow-sm'
-            : 'text-slate-100 hover:bg-white/15'}`;
+            ? 'bg-white/90 text-[var(--ink-900)] shadow-sm'
+            : 'text-white hover:bg-white/15'}`;
 
     const isDark = theme === 'dark';
 
