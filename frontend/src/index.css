@@ -35,12 +35,12 @@
   --bg-end: #102723;
   --ink-900: #e5f4ef;
   --ink-800: #cfe5df;
-  --ink-700: #b5d0c9;
-  --ink-600: #99b9b1;
-  --ink-500: #7ea29a;
-  --surface: rgba(11, 28, 25, 0.7);
-  --surface-strong: rgba(11, 28, 25, 0.86);
-  --surface-stroke: rgba(102, 150, 140, 0.26);
+  --ink-700: #cce0db;
+  --ink-600: #b5d0c9;
+  --ink-500: #99b9b1;
+  --surface: rgba(11, 28, 25, 0.75);
+  --surface-strong: rgba(11, 28, 25, 0.95);
+  --surface-stroke: rgba(132, 180, 170, 0.45);
   --accent-700: #169186;
   --accent-600: #1bb3a4;
   --accent-500: #2cd4c3;
