@@ -1,6 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Plus } from '@phosphor-icons/react';
 import api from '../services/api';
+import { realtimeClient, renewBeforeExpiry } from '../services/realtime';
+import { useToasts, ToastContainer } from '../components/Toast';
+import { useMe } from '../context/MeContext';
 import TimetableGrid from '../components/TimetableGrid';
+import EditEntryModal from '../components/EditEntryModal';
 
 const DAY_FILTERS = ['All', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -122,7 +127,7 @@ const highlightMatch = (text, query) => {
 
     return parts.map((part, index) => (
         part.toLowerCase() === loweredQuery ? (
-            <mark key={`${part}-${index}`} className="rounded bg-[var(--accent-100)] px-0.5 text-[var(--ink-900)]">
+            <mark key={`${part}-${index}`} className="rounded bg-[var(--surface-2)] px-0.5 text-[var(--text-1)]">
                 {part}
             </mark>
         ) : (
@@ -131,6 +136,7 @@ const highlightMatch = (text, query) => {
     ));
 };
 
+// Toast hook
 const Timetables = () => {
     const [viewType, setViewType] = useState('section');
     const [selectedId, setSelectedId] = useState('');
@@ -147,10 +153,59 @@ const Timetables = () => {
 
     const [listLoading, setListLoading] = useState(false);
     const [tableLoading, setTableLoading] = useState(false);
+    const [generating, setGenerating] = useState(false);
     const [listError, setListError] = useState('');
     const [tableError, setTableError] = useState('');
     const [timetable, setTimetable] = useState([]);
     const hideSuggestionsTimerRef = useRef(null);
+
+    // Resource lists for edit modal
+    const [allSubjects, setAllSubjects] = useState([]);
+    const [allFaculty, setAllFaculty] = useState([]);
+    const [allRooms, setAllRooms] = useState([]);
+    const [allTimeSlots, setAllTimeSlots] = useState([]);
+    const [allSections, setAllSections] = useState([]);
+
+    // Edit modal state
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editingEntry, setEditingEntry] = useState(null);
+    const [addPrefill, setAddPrefill] = useState({ day: null, timeSlotId: null });
+
+    // Toast
+    // Toasts now come from the shared Toast module
+    const { toasts, addToast } = useToasts();
+    const { me } = useMe();
+    const canSeeDrafts = me?.role === 'admin' || me?.role === 'editor';
+    const canEdit = canSeeDrafts;
+
+    // Fetch resource lists for modal dropdowns (once on mount)
+    useEffect(() => {
+        let active = true;
+
+        const fetchResources = async () => {
+            try {
+                const [subjectsRes, facultyRes, roomsRes, timeSlotsRes, sectionsRes] = await Promise.all([
+                    api.get('/resources/subjects'),
+                    api.get('/resources/faculty'),
+                    api.get('/resources/rooms'),
+                    api.get('/timetable/time-slots'),
+                    api.get('/programs/sections'),
+                ]);
+
+                if (!active) return;
+                setAllSubjects(Array.isArray(subjectsRes.data) ? subjectsRes.data : []);
+                setAllFaculty(Array.isArray(facultyRes.data) ? facultyRes.data : []);
+                setAllRooms(Array.isArray(roomsRes.data) ? roomsRes.data : []);
+                setAllTimeSlots(Array.isArray(timeSlotsRes.data) ? timeSlotsRes.data : []);
+                setAllSections(Array.isArray(sectionsRes.data) ? sectionsRes.data : []);
+            } catch (err) {
+                console.warn('Failed to fetch resources for edit modal:', err);
+            }
+        };
+
+        fetchResources();
+        return () => { active = false; };
+    }, []);
 
     useEffect(() => {
         let active = true;
@@ -170,7 +225,12 @@ const Timetables = () => {
             try {
                 const response = await api.get(getListEndpoint(viewType));
                 if (!active) return;
-                setList(Array.isArray(response.data) ? response.data : []);
+                let data = Array.isArray(response.data) ? response.data : [];
+                // Viewers (and unassigned users) only see published sections.
+                if (viewType === 'section' && !canSeeDrafts) {
+                    data = data.filter((item) => item.status === 'published');
+                }
+                setList(data);
             } catch (error) {
                 if (!active) return;
                 setListError(error?.response?.data?.error || 'Failed to fetch resource list.');
@@ -183,35 +243,76 @@ const Timetables = () => {
         return () => {
             active = false;
         };
-    }, [viewType]);
+    }, [viewType, canSeeDrafts]);
+
+    const fetchTimetable = useCallback(async () => {
+        if (!selectedId) return;
+
+        setTableLoading(true);
+        setTableError('');
+        setTimetable([]);
+
+        try {
+            const response = await api.get(`/timetable/${viewType}/${selectedId}`);
+            setTimetable(Array.isArray(response.data) ? response.data : []);
+        } catch (error) {
+            setTableError(error?.response?.data?.error || 'Failed to fetch timetable.');
+        } finally {
+            setTableLoading(false);
+        }
+    }, [selectedId, viewType]);
 
     useEffect(() => {
         if (!selectedId) return;
-
-        let active = true;
-
-        const fetchTimetable = async () => {
-            setTableLoading(true);
-            setTableError('');
-            setTimetable([]);
-
-            try {
-                const response = await api.get(`/timetable/${viewType}/${selectedId}`);
-                if (!active) return;
-                setTimetable(Array.isArray(response.data) ? response.data : []);
-            } catch (error) {
-                if (!active) return;
-                setTableError(error?.response?.data?.error || 'Failed to fetch timetable.');
-            } finally {
-                if (active) setTableLoading(false);
-            }
-        };
-
         fetchTimetable();
+    }, [selectedId, viewType, fetchTimetable]);
+
+    // Neon Realtime: keep the open timetable live. The backend seals a query scoped
+    // to the selected section/faculty/room; committed changes stream into state.
+    const fetchSealedTimetable = useCallback(async () => {
+        const response = await api.post(`/realtime/${viewType}/${selectedId}`);
+        return response.data;
+    }, [selectedId, viewType]);
+
+    useEffect(() => {
+        if (!selectedId) return;
+        let active = true;
+        let subscription;
+        let stopRenewal;
+
+        (async () => {
+            let sealed;
+            try {
+                sealed = await fetchSealedTimetable();
+            } catch (err) {
+                console.warn('Realtime seal failed:', err?.response?.data?.error || err?.message);
+                return;
+            }
+            if (!active) return;
+
+            subscription = realtimeClient.subscribe(sealed);
+            subscription.onChange((snapshot) => {
+                if (!active) return;
+                if (Array.isArray(snapshot.data)) {
+                    setTimetable(snapshot.data);
+                    setTableError('');
+                }
+            });
+            subscription.onStateChange((state) => {
+                if (!active) return;
+                if (state.status === 'error') {
+                    console.warn('Realtime subscription error:', state.error?.message);
+                }
+            });
+            stopRenewal = renewBeforeExpiry(subscription, sealed, fetchSealedTimetable);
+        })();
+
         return () => {
             active = false;
+            if (stopRenewal) stopRenewal();
+            if (subscription) subscription.unsubscribe();
         };
-    }, [selectedId, viewType]);
+    }, [selectedId, viewType, fetchSealedTimetable]);
 
     useEffect(() => () => {
         if (hideSuggestionsTimerRef.current) {
@@ -297,6 +398,88 @@ const Timetables = () => {
         };
     }, [timetable]);
 
+    // ── Edit / Delete / Add handlers ──
+
+    const handleEditEntry = (entry) => {
+        setEditingEntry(entry);
+        setAddPrefill({ day: null, timeSlotId: null });
+        setEditModalOpen(true);
+    };
+
+    const handleAddEntry = (day, timeSlotId) => {
+        setEditingEntry(null);
+        setAddPrefill({ day, timeSlotId });
+        setEditModalOpen(true);
+    };
+
+    const handleDeleteEntry = async (entryId) => {
+        try {
+            await api.delete(`/timetable/${entryId}`);
+            addToast('Entry deleted successfully.', 'success');
+            fetchTimetable();
+        } catch (err) {
+            const msg = err?.response?.data?.error || 'Failed to delete entry.';
+            addToast(msg, 'error');
+        }
+    };
+
+    const handleDropEntry = async (entryId, targetDay, targetTimeSlotId) => {
+        try {
+            // Find the entry to get its existing details to update just day and time_slot_id
+            const entry = timetable.find((e) => String(e.id) === String(entryId));
+            if (!entry) return;
+
+            const payload = {
+                section_id: entry.section_id,
+                subject_id: entry.subject_id,
+                faculty_id: entry.faculty_id,
+                room_id: entry.room_id || null,
+                day: targetDay,
+                time_slot_id: targetTimeSlotId,
+            };
+
+            await api.put(`/timetable/${entryId}`, payload);
+            addToast('Entry moved successfully.', 'success');
+            fetchTimetable();
+        } catch (err) {
+            addToast(err?.response?.data?.error || 'Failed to move entry due to a conflict.', 'error');
+        }
+    };
+
+    const handleSaveEntry = async (formData, existingId) => {
+        if (existingId) {
+            // Update
+            await api.put(`/timetable/${existingId}`, formData);
+            addToast('Entry updated successfully.', 'success');
+        } else {
+            // Create
+            await api.post('/timetable', formData);
+            addToast('New entry created successfully.', 'success');
+        }
+        fetchTimetable();
+    };
+
+    const handleCloseModal = () => {
+        setEditModalOpen(false);
+        setEditingEntry(null);
+    };
+
+    const handleGenerate = async () => {
+        setGenerating(true);
+        addToast('Generating optimal schedule around existing classes. Please wait...', 'info');
+        try {
+            const res = await api.post('/timetable/generate', {});
+            addToast(`Schedule generated. ${res.data.entriesCreated === 0 ? res.data.message : `Created ${res.data.entriesCreated} timetable entries.`}`, 'success');
+            fetchTimetable();
+        } catch (err) {
+            addToast(err?.response?.data?.error || 'Failed to generate schedule.', 'error');
+        } finally {
+            setGenerating(false);
+        }
+    };
+
+    // ── Search handlers ──
+
     const selectSuggestion = (suggestion) => {
         setSelectedId(String(suggestion.item.id));
         setSearchText(suggestion.label);
@@ -375,15 +558,25 @@ const Timetables = () => {
 
     return (
         <div className="space-y-6">
-            <section className="glass-panel p-6 md:p-7">
+            <section className="card p-6 md:p-7">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
-                        <h2 className="text-2xl">Timetable Query Controls</h2>
+                        <h2 className="text-2xl">Find a timetable</h2>
                         <p className="section-subtitle mt-2">
-                            Switch contexts instantly and apply day filters for focused schedule analysis.
+                            Choose a view, search, and filter by day.
                         </p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 items-center">
+                        {canEdit && (
+                            <button
+                                type="button"
+                                onClick={handleGenerate}
+                                disabled={generating}
+                                className="btn-primary"
+                            >
+                                {generating ? 'Generating...' : 'Auto generate'}
+                            </button>
+                        )}
                         {Object.entries(viewLabels).map(([key, label]) => (
                             <button
                                 key={key}
@@ -400,7 +593,7 @@ const Timetables = () => {
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <label className="block">
                         <div className="mb-1 flex items-center justify-between gap-3">
-                            <span className="block text-sm font-semibold text-[var(--ink-700)]">Search</span>
+                            <span className="block text-sm font-semibold text-[var(--text-2)]">Search</span>
                             <div className="flex items-center gap-2">
                                 {isMobileViewport && (
                                     <button
@@ -409,7 +602,7 @@ const Timetables = () => {
                                             setMobileSheetOpen(true);
                                             setShowSuggestions(true);
                                         }}
-                                        className="text-xs font-semibold text-[var(--ink-600)] hover:text-[var(--ink-900)]"
+                                        className="text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)]"
                                     >
                                         Open search
                                     </button>
@@ -422,7 +615,7 @@ const Timetables = () => {
                                             setShowSuggestions(false);
                                             setActiveSuggestionIndex(-1);
                                         }}
-                                        className="text-xs font-semibold text-[var(--ink-600)] hover:text-[var(--ink-900)]"
+                                        className="text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)]"
                                     >
                                         Clear
                                     </button>
@@ -446,12 +639,12 @@ const Timetables = () => {
                         />
 
                         {showSuggestionPanel && (
-                            <div className="mt-2 overflow-hidden rounded-xl border border-[color:var(--surface-stroke)] bg-[var(--surface-strong)] shadow-lg">
-                                <div className="flex items-center justify-between border-b border-[color:var(--surface-stroke)] px-3 py-2 text-xs">
-                                    <span className="font-semibold text-[var(--ink-700)]">
-                                        Smart suggestions
+                            <div className="mt-2 overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--surface)] shadow-lg">
+                                <div className="flex items-center justify-between border-b border-[var(--line)] px-3 py-2 text-xs">
+                                    <span className="font-semibold text-[var(--text-2)]">
+                                        Suggestions
                                     </span>
-                                    <span className="text-[var(--ink-600)]">
+                                    <span className="text-[var(--text-2)]">
                                         {suggestions.length} shown
                                     </span>
                                 </div>
@@ -464,11 +657,11 @@ const Timetables = () => {
                                             onMouseDown={(e) => e.preventDefault()}
                                             onClick={() => selectSuggestion(suggestion)}
                                             className={`w-full rounded-lg px-3 py-2 text-left transition ${index === activeSuggestionIndex
-                                                ? 'bg-[var(--accent-100)]'
-                                                : 'hover:bg-[var(--surface)]'}`}
+                                                ? 'bg-[var(--surface-2)]'
+                                                : 'hover:bg-[var(--surface-2)]'}`}
                                         >
                                             <div className="flex items-start justify-between gap-2 sm:items-center">
-                                                <p className="truncate text-sm font-semibold text-[var(--ink-900)]">
+                                                <p className="truncate text-sm font-semibold text-[var(--text-1)]">
                                                     {highlightMatch(suggestion.label, searchText)}
                                                 </p>
                                                 <span className="hidden chip !py-1 text-[10px] sm:inline-flex">
@@ -476,12 +669,12 @@ const Timetables = () => {
                                                 </span>
                                             </div>
                                             {suggestion.meta && (
-                                                <p className="mt-1 truncate text-xs text-[var(--ink-600)]">{suggestion.meta}</p>
+                                                <p className="mt-1 truncate text-xs text-[var(--text-2)]">{suggestion.meta}</p>
                                             )}
                                         </button>
                                     ))
                                 ) : (
-                                    <div className="px-3 py-2 text-sm text-[var(--ink-600)]">
+                                    <div className="px-3 py-2 text-sm text-[var(--text-2)]">
                                         No close matches found. Try shorter keywords.
                                     </div>
                                 )}
@@ -491,7 +684,7 @@ const Timetables = () => {
                     </label>
 
                     <label className="block">
-                        <span className="mb-1 block text-sm font-semibold text-[var(--ink-700)]">Select {viewLabels[viewType]}</span>
+                        <span className="mb-1 block text-sm font-semibold text-[var(--text-2)]">Select {viewLabels[viewType]}</span>
                         <select
                             className="input-shell"
                             value={selectedId}
@@ -522,7 +715,7 @@ const Timetables = () => {
                 </div>
 
                 {listError && (
-                    <div className="alert-danger mt-4 rounded-xl px-4 py-3 text-sm">
+                    <div className="alert-danger mt-4 rounded-lg px-4 py-3 text-sm">
                         {listError}
                     </div>
                 )}
@@ -530,77 +723,100 @@ const Timetables = () => {
 
             {selectedId && (
                 <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <article className="glass-panel-strong p-4">
-                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--ink-500)]">Selected</p>
-                        <p className="mt-2 text-lg font-semibold text-[var(--ink-900)]">
+                    <article className="rounded-lg border border-[var(--line)] p-3">
+                        <p className="caption">Selected</p>
+                        <p className="mono mt-2 text-[22px] leading-7 font-medium text-[var(--text-1)]">
                             {selectedItem?.name || selectedItem?.room_number || selectedItem?.code || 'Unknown'}
                         </p>
                     </article>
-                    <article className="glass-panel-strong p-4">
-                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--ink-500)]">Classes</p>
-                        <p className="mt-2 text-3xl font-bold text-[var(--ink-900)]">{stats.classes}</p>
+                    <article className="rounded-lg border border-[var(--line)] p-3">
+                        <p className="caption">Classes</p>
+                        <p className="mono mt-2 text-[22px] leading-7 font-medium text-[var(--text-1)]">{stats.classes}</p>
                     </article>
-                    <article className="glass-panel-strong p-4">
-                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--ink-500)]">Subjects</p>
-                        <p className="mt-2 text-3xl font-bold text-[var(--ink-900)]">{stats.subjects}</p>
+                    <article className="rounded-lg border border-[var(--line)] p-3">
+                        <p className="caption">Subjects</p>
+                        <p className="mono mt-2 text-[22px] leading-7 font-medium text-[var(--text-1)]">{stats.subjects}</p>
                     </article>
-                    <article className="glass-panel-strong p-4">
-                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--ink-500)]">Rooms Referenced</p>
-                        <p className="mt-2 text-3xl font-bold text-[var(--ink-900)]">{stats.rooms}</p>
+                    <article className="rounded-lg border border-[var(--line)] p-3">
+                        <p className="caption">Rooms referenced</p>
+                        <p className="mono mt-2 text-[22px] leading-7 font-medium text-[var(--text-1)]">{stats.rooms}</p>
                     </article>
                 </section>
             )}
 
             {tableError && (
-                <div className="alert-danger rounded-xl px-4 py-3 text-sm">
+                <div className="alert-danger rounded-lg px-4 py-3 text-sm">
                     {tableError}
                 </div>
             )}
 
             {tableLoading ? (
-                <div className="glass-panel p-6">
+                <div className="card p-6">
                     <div className="space-y-3">
-                        <div className="h-10 animate-pulse rounded-lg bg-[var(--surface)]" />
-                        <div className="h-10 animate-pulse rounded-lg bg-[var(--surface)]" />
-                        <div className="h-10 animate-pulse rounded-lg bg-[var(--surface)]" />
+                        <div className="h-10 animate-pulse rounded-lg bg-[var(--surface-2)]" />
+                        <div className="h-10 animate-pulse rounded-lg bg-[var(--surface-2)]" />
+                        <div className="h-10 animate-pulse rounded-lg bg-[var(--surface-2)]" />
                     </div>
                 </div>
             ) : selectedId && timetable.length > 0 ? (
                 <TimetableGrid
                     timetableData={timetable}
                     highlightDay={dayFilter === 'All' ? null : dayFilter}
+                    editable={canEdit}
+                    onEditEntry={handleEditEntry}
+                    onDeleteEntry={handleDeleteEntry}
+                    onAddEntry={handleAddEntry}
+                    onDropEntry={handleDropEntry}
                 />
             ) : selectedId ? (
-                <div className="glass-panel p-6 text-sm text-[var(--ink-600)]">
-                    No timetable entries found for this selection.
+                <div className="card">
+                    <div className="empty-state">
+                        <span className="empty-state-glyph">⌖</span>
+                        <p className="text-sm">No timetable entries found for this selection.</p>
+                        {viewType === 'section' && (
+                            <button
+                                type="button"
+                                className="btn-primary text-sm"
+                                onClick={() => handleAddEntry('Monday', null)}
+                            >
+                                <Plus size={14} weight="regular" /> Add
+                            </button>
+                        )}
+                    </div>
                 </div>
             ) : (
-                <div className="glass-panel p-6 text-sm text-[var(--ink-600)]">
-                    Select a {viewLabels[viewType].toLowerCase()} to open the weekly timetable grid.
+                <div className="card">
+                    <div className="empty-state">
+                        <span className="empty-state-glyph">⌖</span>
+                        <p className="text-sm">
+                            Select a {viewLabels[viewType].toLowerCase()} to open the weekly timetable grid.
+                        </p>
+                    </div>
                 </div>
             )}
 
+            {/* Mobile search sheet */}
             {showMobileSheet && (
                 <div
                     className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[1px] md:hidden"
                     onClick={closeMobileSheet}
                 >
                     <div
-                        className="sheet-up absolute inset-x-0 bottom-0 flex h-[84dvh] flex-col rounded-t-2xl border border-[color:var(--surface-stroke)] bg-[var(--surface-strong)] p-4 shadow-2xl"
+                        className="sheet-up absolute inset-x-0 bottom-0 flex h-[84dvh] flex-col rounded-t-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-[var(--ink-500)]/40" />
+                        <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-[var(--text-3)]/40" />
                         <div className="mb-3 flex items-center justify-between gap-3">
                             <div>
-                                <p className="text-sm font-semibold text-[var(--ink-900)]">Smart Search</p>
-                                <p className="text-xs text-[var(--ink-600)]">
+                                <p className="text-sm font-semibold text-[var(--text-1)]">Search</p>
+                                <p className="text-xs text-[var(--text-2)]">
                                     Find and jump to any {viewLabels[viewType].toLowerCase()}.
                                 </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={closeMobileSheet}
-                                className="rounded-lg border border-[color:var(--surface-stroke)] px-3 py-2 text-xs font-semibold text-[var(--ink-700)]"
+                                className="rounded-lg border border-[var(--line)] px-3 py-2 text-xs font-semibold text-[var(--text-2)]"
                             >
                                 Close
                             </button>
@@ -621,11 +837,11 @@ const Timetables = () => {
                         />
 
                         <div className="mt-3 flex items-center justify-between text-xs">
-                            <span className="font-semibold text-[var(--ink-700)]">Suggestions</span>
-                            <span className="text-[var(--ink-600)]">{suggestions.length} shown</span>
+                            <span className="font-semibold text-[var(--text-2)]">Suggestions</span>
+                            <span className="text-[var(--text-2)]">{suggestions.length} shown</span>
                         </div>
 
-                        <div className="soft-scroll mt-2 flex-1 overflow-auto rounded-xl border border-[color:var(--surface-stroke)] bg-[var(--surface)] p-1">
+                        <div className="soft-scroll mt-2 flex-1 overflow-auto rounded-lg border border-[var(--line)] bg-[var(--surface)] p-1">
                             {searchHasQuery ? (
                                 suggestions.length > 0 ? (
                                     suggestions.map((suggestion, index) => (
@@ -634,34 +850,53 @@ const Timetables = () => {
                                             type="button"
                                             onClick={() => selectSuggestion(suggestion)}
                                             className={`w-full rounded-lg px-3 py-2 text-left transition ${index === activeSuggestionIndex
-                                                ? 'bg-[var(--accent-100)]'
-                                                : 'hover:bg-[var(--surface-strong)]'}`}
+                                                ? 'bg-[var(--surface-2)]'
+                                                : 'hover:bg-[var(--surface-2)]'}`}
                                         >
                                             <div className="flex items-center justify-between gap-3">
-                                                <p className="truncate text-sm font-semibold text-[var(--ink-900)]">
+                                                <p className="truncate text-sm font-semibold text-[var(--text-1)]">
                                                     {highlightMatch(suggestion.label, searchText)}
                                                 </p>
                                                 <span className="chip !py-1 text-[10px]">{suggestion.reason}</span>
                                             </div>
                                             {suggestion.meta && (
-                                                <p className="mt-1 truncate text-xs text-[var(--ink-600)]">{suggestion.meta}</p>
+                                                <p className="mt-1 truncate text-xs text-[var(--text-2)]">{suggestion.meta}</p>
                                             )}
                                         </button>
                                     ))
                                 ) : (
-                                    <div className="px-3 py-3 text-sm text-[var(--ink-600)]">
+                                    <div className="px-3 py-3 text-sm text-[var(--text-2)]">
                                         No close matches found. Try shorter keywords.
                                     </div>
                                 )
                             ) : (
-                                <div className="px-3 py-3 text-sm text-[var(--ink-600)]">
-                                    Start typing to get smart suggestions.
+                                <div className="px-3 py-3 text-sm text-[var(--text-2)]">
+                                    Start typing to see suggestions.
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
             )}
+
+            {/* Edit / Add Modal */}
+            <EditEntryModal
+                isOpen={editModalOpen}
+                onClose={handleCloseModal}
+                onSave={handleSaveEntry}
+                entry={editingEntry}
+                prefillDay={addPrefill.day}
+                prefillTimeSlotId={addPrefill.timeSlotId}
+                prefillSectionId={viewType === 'section' ? selectedId : null}
+                subjects={allSubjects}
+                faculty={allFaculty}
+                rooms={allRooms}
+                timeSlots={allTimeSlots}
+                sections={allSections}
+            />
+
+            {/* Toasts */}
+            <ToastContainer toasts={toasts} />
         </div>
     );
 };

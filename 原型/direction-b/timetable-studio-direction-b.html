@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" data-zcode-design data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timetable Studio · Direction B “Midnight Registry”</title>
+<style>
+/* ══ Brand kit: Direction B “Midnight Registry” ══
+   Dark-first precision console for scheduling operations. Charcoal base,
+   signal-amber accent, mono numerals, hairline data rows. Feels like a
+   registrar's flight deck: dense, engineered, calm. */
+:root {
+  --bg: #0B0E14;
+  --panel: #12161F;
+  --panel-2: #171C26;
+  --line: #232A36;
+  --line-strong: #39414F;
+  --text: #E8EAED;
+  --text-2: #A7AFBE;
+  --text-3: #6B7486;
+  --accent-600: #F5A524;
+  --accent-650: #FFB53B;
+  --accent-700: #3A2B10;
+  --ok-600: #5BC98C;
+  --ok-700: #10271A;
+  --danger-600: #F07178;
+  --danger-700: #2C1417;
+  --radius-card: 6px;
+  --radius-control: 6px;
+  --font-display: "Archivo", "Archivo Expanded", "Segoe UI Variable Display", "Segoe UI", sans-serif;
+  --font-body: "Archivo", "Segoe UI", sans-serif;
+  --font-num: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  --content-max: 1240px;
+}
+html[data-theme="light"] {
+  --bg: #F2F3F5;
+  --panel: #FFFFFF;
+  --panel-2: #F7F8FA;
+  --line: #E2E4E9;
+  --line-strong: #C9CDD6;
+  --text: #171B23;
+  --text-2: #4C5566;
+  --text-3: #8B93A3;
+  --accent-600: #B96E00;
+  --accent-650: #A46200;
+  --accent-700: #FFEBC7;
+  --ok-600: #2E7D4F;
+  --ok-700: #DFF2E7;
+  --danger-600: #C03A44;
+  --danger-700: #FBE4E6;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font-family: var(--font-body); font-size: 14.5px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased; }
+.wrap { max-width: var(--content-max); margin: 0 auto; padding: 0 var(--space-5); }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.mono-tag { font-family: var(--font-num); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+
+/* top console bar */
+.topbar { border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 5; }
+.topbar-inner { display: flex; align-items: center; gap: var(--space-4); height: 56px; }
+.brand { display: flex; align-items: center; gap: var(--space-3); color: var(--text); text-decoration: none; }
+.brand-mark { width: 30px; height: 30px; display: block; }
+.brand-name { font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: 0.01em; }
+.topnav { display: flex; gap: var(--space-1); margin-left: var(--space-3); }
+.topnav a { color: var(--text-2); text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 7px 11px; border-radius: var(--radius-control); }
+.topnav a:hover { color: var(--text); background: var(--panel-2); }
+.topnav a[aria-current] { color: var(--accent-600); }
+.top-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+.live-dot { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-num); font-size: 11.5px; color: var(--ok-600); }
+.live-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok-600); }
+.theme-btn { border: 1px solid var(--line-strong); background: transparent; color: var(--text-2);
+  border-radius: var(--radius-control); padding: 6px 12px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.theme-btn:hover { color: var(--text); border-color: var(--text-3); }
+.avatar { width: 30px; height: 30px; border-radius: var(--radius-control); background: var(--panel-2);
+  border: 1px solid var(--line); color: var(--text); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+
+/* layout */
+.shell { display: grid; grid-template-columns: 200px 1fr; min-height: calc(100vh - 56px); }
+.sidenav { border-right: 1px solid var(--line); padding: var(--space-4) 0; background: var(--panel); }
+.sidenav a { display: flex; align-items: center; gap: 10px; color: var(--text-2); text-decoration: none;
+  font-size: 13.5px; font-weight: 600; padding: 9px 16px; border-left: 2px solid transparent; }
+.sidenav a svg { width: 17px; height: 17px; }
+.sidenav a:hover { color: var(--text); background: var(--panel-2); }
+.sidenav a[aria-current] { color: var(--accent-600); border-left-color: var(--accent-600); background: var(--panel-2); }
+.sidenav .group { padding: var(--space-3) 16px 6px; }
+.main { padding: var(--space-5) var(--space-5) var(--space-7); }
+
+h1.display { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+.head-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); }
+.head-actions { display: flex; gap: var(--space-2); }
+
+/* metric strip */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); margin-bottom: var(--space-5); }
+.metric { padding: var(--space-4) var(--space-4); border-left: 1px solid var(--line); }
+.metric:first-child { border-left: 0; }
+.metric .label { font-size: 12px; color: var(--text-3); font-weight: 600; }
+.metric .value { font-family: var(--font-num); font-size: 26px; font-weight: 600; margin-top: 2px; }
+.metric .delta { font-family: var(--font-num); font-size: 11.5px; color: var(--text-3); margin-top: 2px; }
+
+/* panel with table */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card); }
+.panel-head { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--line); }
+.panel-title { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; }
+table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.data th { text-align: left; font-family: var(--font-num); font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--text-3); font-weight: 600; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+table.data td { padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--text-2); vertical-align: middle; }
+table.data tr:last-child td { border-bottom: 0; }
+table.data td.strong { color: var(--text); font-weight: 600; }
+.code-pill { font-family: var(--font-num); font-size: 11.5px; background: var(--accent-700); color: var(--accent-600);
+  border: 1px solid color-mix(in srgb, var(--accent-600) 35%, transparent); border-radius: 4px; padding: 1px 7px; }
+.status { font-family: var(--font-num); font-size: 11.5px; padding: 3px 9px; border-radius: 4px; display: inline-block; }
+.status.applied { color: var(--ok-600); background: var(--ok-700); }
+.status.pending { color: var(--accent-600); background: var(--accent-700); }
+.room-cell .room { color: var(--text); }
+.room-cell .cap { color: var(--text-3); font-family: var(--font-num); font-size: 11px; }
+
+/* request row panel */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-top: var(--space-4); }
+.req { padding: var(--space-4); }
+.req-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); }
+.req-title { font-weight: 700; font-size: 14px; color: var(--text); }
+.req-meta { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
+.req-arrow { font-family: var(--font-num); font-size: 12.5px; color: var(--accent-600); margin-top: var(--space-2); }
+.req-actions { display: flex; gap: var(--space-2); justify-content: flex-end; margin-top: var(--space-3); }
+
+/* buttons */
+.btn { font: inherit; font-size: 13px; font-weight: 700; border-radius: var(--radius-control);
+  padding: 8px 15px; cursor: pointer; border: 1px solid transparent; }
+.btn-primary { background: var(--accent-600); color: #161006; }
+.btn-primary:hover { background: var(--accent-650); }
+.btn-ghost { background: transparent; color: var(--text-2); border-color: var(--line-strong); }
+.btn-ghost:hover { color: var(--text); }
+.btn-danger-ghost { background: transparent; color: var(--danger-600); border-color: color-mix(in srgb, var(--danger-600) 40%, transparent); }
+.btn-danger-ghost:hover { background: var(--danger-700); }
+
+/* login panel */
+.login { padding: var(--space-5); }
+.login h2 { font-family: var(--font-display); font-size: 19px; margin: 0 0 var(--space-4); }
+.field { margin-bottom: var(--space-3); }
+.field label { display: block; font-family: var(--font-num); font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--text-3); margin-bottom: 6px; }
+.input { width: 100%; font: inherit; font-size: 14px; color: var(--text); background: var(--bg);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-control); padding: 10px 12px; }
+.input:focus { outline: none; border-color: var(--accent-600); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-600) 25%, transparent); }
+
+/* brand board */
+.board { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-top: var(--space-4); }
+.swatch { border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; background: var(--panel); }
+.swatch .fill { height: 52px; }
+.swatch .cap { padding: 8px 12px; font-family: var(--font-num); font-size: 11px; color: var(--text-3); }
+.type-scale { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-4); margin-top: var(--space-4); }
+.type-scale .row { display: flex; align-items: baseline; gap: var(--space-4); padding: 9px 0; border-bottom: 1px solid var(--line); }
+.type-scale .row:last-child { border-bottom: 0; }
+.type-scale .tag { font-family: var(--font-num); font-size: 10.5px; color: var(--text-3); width: 150px; flex-shrink: 0; }
+.logo-row { display: flex; gap: var(--space-3); align-items: center; }
+.logo-tile { width: 60px; height: 60px; border-radius: var(--radius-card); border: 1px solid var(--line-strong); display: grid; place-items: center; background: var(--panel); }
+.logo-tile svg { width: 36px; height: 36px; }
+footer.note { border-top: 1px solid var(--line); margin-top: var(--space-6); padding: var(--space-4) 0 var(--space-6); color: var(--text-3); font-size: 12.5px; }
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidenav { display: flex; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 0; }
+  .sidenav .group { display: none; }
+  .split, .metrics, .board { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="37" height="37" rx="6" stroke="currentColor" stroke-width="2"/>
+        <path d="M10 10h20v6H10zM10 20h9v10h-9zM23 20h7v10h-7z" stroke="currentColor" stroke-width="2" fill="none"/>
+        <rect x="23" y="20" width="7" height="10" fill="currentColor" opacity="0.85"/>
+      </svg>
+      <span class="brand-name">TIMETABLE STUDIO</span>
+    </a>
+    <nav class="topnav" aria-label="Primary">
+      <a href="#" aria-current="page">Dashboard</a>
+      <a href="#">Timetables</a>
+      <a href="#">Admin</a>
+    </nav>
+    <div class="top-right">
+      <span class="live-dot">Live</span>
+      <button class="theme-btn" id="themeToggle" type="button">Light</button>
+      <span class="avatar num">MA</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Sections">
+    <div class="group mono-tag">Operations</div>
+    <a href="#" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+      Dashboard</a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Timetables</a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Requests</a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+      Users</a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v18M5 8l7-5 7 5M5 8v6M19 8v6M8 21h8"/></svg>
+      Audit log</a>
+    <div class="group mono-tag">Governance</div>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg>
+      Master data</a>
+  </nav>
+
+  <main class="main">
+    <div class="head-row">
+      <h1 class="display">Academic Command Center</h1>
+      <div class="head-actions">
+        <button class="btn btn-ghost" type="button">Export xlsx</button>
+        <button class="btn btn-primary" type="button">Bulk upload</button>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="label">Active sections</div><div class="value">2</div><div class="delta">CSE-A · CSE-B</div></div>
+      <div class="metric"><div class="label">Faculty pool</div><div class="value">3</div><div class="delta">1 linked by email</div></div>
+      <div class="metric"><div class="label">Scheduled classes</div><div class="value">15</div><div class="delta">4 online</div></div>
+      <div class="metric"><div class="label">Room usage R-101</div><div class="value">60%</div><div class="delta">9 of 15 rows</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">CSE-A · Week grid</span><span class="mono-tag">18 – 23 Nov</span></div>
+      <table class="data">
+        <thead><tr><th>Slot</th><th>Mon</th><th>Tue</th><th>Wed</th></tr></thead>
+        <tbody>
+          <tr><td class="num">09:00–10:00</td>
+            <td class="strong"><span class="code-pill">CS101</span> Data Structures<br><span class="room-cell"><span class="cap">Dr. Anita Sharma ·</span> <span class="room">R-101</span></span></td>
+            <td><span class="code-pill">CS101</span> Data Structures <span class="status applied">moved</span></td>
+            <td class="strong"><span class="code-pill">CS101</span> Data Structures<br><span class="room-cell"><span class="cap">R-101</span></span></td></tr>
+          <tr><td class="num">12:00–13:00</td>
+            <td>Free</td>
+            <td class="strong"><span class="code-pill">CS201</span> Algorithms<br><span class="room-cell"><span class="cap">R-101</span></span></td>
+            <td class="strong"><span class="code-pill">CS101L</span> DS Lab<br><span class="room-cell"><span class="cap">Prof. Rajesh Iyer ·</span> <span class="room">LAB-1</span></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="split">
+      <div class="panel req">
+        <div class="req-top"><span class="req-title">Mobile Tester Faculty · reschedule</span><span class="status applied">applied</span></div>
+        <div class="req-meta">CS101 Data Structures · CSE-A · was Mon 09:00–10:00</div>
+        <div class="req-arrow">→ Tue 10:00–11:00 · room unchanged</div>
+        <div class="req-meta">“Conflicts with a committee meeting.” · by mobile.test@ttstudio.dev</div>
+        <div class="req-actions"><button class="btn btn-ghost" type="button">Revert</button></div>
+      </div>
+      <div class="panel req">
+        <div class="req-top"><span class="req-title">Dr. Anita Sharma · reschedule</span><span class="status pending">pending</span></div>
+        <div class="req-meta">CS101 · CSE-A · was Tue 09:00–10:00</div>
+        <div class="req-arrow">→ Mon 09:00–10:00 · room unchanged</div>
+        <div class="req-actions">
+          <button class="btn btn-danger-ghost" type="button">Reject</button>
+          <button class="btn btn-primary" type="button">Approve</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel login" style="max-width: 420px;">
+      <h2>Sign in</h2>
+      <div class="field"><label for="em">Email</label><input class="input" id="em" type="email" value="mobile.admin@ttstudio.dev"></div>
+      <div class="field"><label for="pw">Password</label><input class="input" id="pw" type="password" value="············"></div>
+      <button class="btn btn-primary" style="width:100%" type="button">Sign in</button>
+    </div>
+
+    <div class="board">
+      <div class="swatch"><div class="fill" style="background:var(--accent-600)"></div><div class="cap">accent · #F5A524</div></div>
+      <div class="swatch"><div class="fill" style="background:var(--bg)"></div><div class="cap">bg · #0B0E14</div></div>
+      <div class="swatch"><div class="fill" style="background:var(--panel)"></div><div class="cap">panel · #12161F</div></div>
+      <div class="swatch"><div class="fill" style="background:var(--text)"></div><div class="cap">text · #E8EAED</div></div>
+    </div>
+    <div class="type-scale">
+      <div class="row"><span class="tag">display / 26</span><span style="font-family:var(--font-display);font-size:23px;font-weight:800;">Academic Command Center</span></div>
+      <div class="row"><span class="tag">panel title / 14.5</span><span style="font-family:var(--font-display);font-size:15px;font-weight:700;">CSE-A · Week grid</span></div>
+      <div class="row"><span class="tag">body / 14.5</span><span>Review faculty reschedule and cancellation requests, then apply or decline.</span></div>
+      <div class="row"><span class="tag">num / mono</span><span class="num" style="font-size:13.5px;">09:00–15:00 · 15 rows · 60% R-101</span></div>
+    </div>
+  </main>
+</div>
+
+<footer class="note"><div class="wrap">Direction B “Midnight Registry” · dark-first ops console kit · demo rows use this workspace’s real sections (CSE-A) and the approved request from 11/18.</div></footer>
+
+<script>
+(function () {
+  var btn = document.getElementById("themeToggle");
+  var root = document.documentElement;
+  btn.addEventListener("click", function () {
+    var dark = root.getAttribute("data-theme") === "dark";
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+    btn.textContent = dark ? "Light" : "Dark";
+  });
+})();
+</script>
+</body>
+</html>

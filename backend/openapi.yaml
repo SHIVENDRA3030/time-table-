@@ -1,0 +1,212 @@
+openapi: 3.1.0
+info:
+  title: Timetable Studio API
+  version: 1.0.0
+  description: >
+    College timetable management API. One backend serves the web app, the
+    Android app, and the iOS app. Mobile auth uses the token family endpoints
+    under /api/auth; web clients use Neon Auth cookie sessions directly.
+    All data routes are tenant-scoped by Row Level Security.
+servers:
+  - url: /api/v1
+  - url: /api
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Neon Auth JWT (web) or a Timetable Studio API access token (mobile,
+        audience 'timetable-api', 15-minute TTL, issued by /api/auth/token).
+  parameters:
+    idempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema: { type: string, maxLength: 200 }
+      description: >
+        Makes a mutation idempotent for 24h — retries with the same key replay
+        the first response instead of double-applying.
+paths:
+  /auth/token:
+    post:
+      summary: Exchange a Neon session cookie for an API token pair (mobile)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sessionCookie]
+              properties:
+                sessionCookie: { type: string }
+      responses:
+        "200": { description: Access + refresh token pair with user }
+        "401": { description: Invalid or expired session }
+  /auth/refresh:
+    post:
+      summary: Rotate the refresh token (single use; reuse revokes the family)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
+      responses:
+        "200": { description: New token pair }
+        "401": { description: Invalid, expired, or reused token }
+  /auth/revoke:
+    post:
+      summary: Revoke the refresh-token family (sign out)
+      security: []
+      responses:
+        "200": { description: Revoked }
+  /me:
+    get:
+      summary: Caller's role, faculty/student link, provisioning state
+      responses:
+        "200": { description: OK }
+  /programs/programs:
+    get: { summary: List programs, responses: { "200": { description: OK } } }
+  /programs/sections:
+    get:
+      summary: List sections (viewers see published only via the timetable routes)
+      responses:
+        "200": { description: OK }
+  /timetable:
+    get:
+      summary: List timetable entries
+      parameters:
+        - { name: sectionId, in: query, schema: { type: string } }
+        - { name: day, in: query, schema: { type: string } }
+      responses:
+        "200": { description: OK }
+  /timetable/section/{id}:
+    get:
+      summary: Weekly entries for one section
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: OK }
+        "404": { description: Not found }
+  /timetable/time-slots:
+    get: { summary: Period structure, responses: { "200": { description: OK } } }
+  /timetable:
+    post:
+      summary: Create a timetable entry (admin/editor)
+      parameters: [{ $ref: '#/components/parameters/idempotencyKey' }]
+      responses:
+        "201": { description: Created }
+        "409": { description: Clash (mapped from the DB uniqueness constraints) }
+  /timetable/{id}:
+    put:
+      summary: Move or edit an entry (admin/editor)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { $ref: '#/components/parameters/idempotencyKey' }
+      responses:
+        "200": { description: OK }
+        "409": { description: Clash }
+    delete:
+      summary: Delete an entry (admin/editor)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { $ref: '#/components/parameters/idempotencyKey' }
+      responses:
+        "200": { description: OK }
+  /workloads:
+    get: { summary: Faculty workloads with scheduling progress, responses: { "200": { description: OK } } }
+  /requests:
+    get:
+      summary: Change requests (admins see all, faculty their own)
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [pending, applied, rejected, cancelled, expired] } }
+      responses:
+        "200": { description: OK }
+    post:
+      summary: Raise a reschedule/cancel request (faculty)
+      parameters: [{ $ref: '#/components/parameters/idempotencyKey' }]
+      responses:
+        "201": { description: Created, expires in 72h }
+        "403": { description: Not linked to a faculty record }
+  /requests/{id}/decide:
+    put:
+      summary: Approve & apply (transactional, conflict-checked) or reject (admin)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { $ref: '#/components/parameters/idempotencyKey' }
+      responses:
+        "200": { description: Decision recorded }
+        "409": { description: Already decided, or approval conflicts }
+  /requests/{id}/cancel:
+    post:
+      summary: Withdraw own pending request
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Cancelled }
+        "409": { description: Not pending or not the requester }
+  /upload:
+    post:
+      summary: Stage an Excel import (parse + validate only, editor/admin)
+      parameters: [{ $ref: '#/components/parameters/idempotencyKey' }]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        "202": { description: Staged — preview + job id }
+        "400": { description: Unrecognized format }
+  /jobs/{id}:
+    get:
+      summary: Job status and result (import preview/errors, export readiness)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: OK }
+  /imports/{id}/commit:
+    post:
+      summary: Apply a staged import transactionally (editor/admin)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { $ref: '#/components/parameters/idempotencyKey' }
+      responses:
+        "202": { description: Commit queued }
+  /export/timetable/{sectionId}:
+    post:
+      summary: Queue a section xlsx export (editor/admin)
+      parameters:
+        - { name: sectionId, in: path, required: true, schema: { type: string } }
+      responses:
+        "202": { description: Export queued }
+  /exports/{id}/download:
+    get:
+      summary: Download a finished export workbook
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: xlsx stream }
+        "409": { description: Not ready }
+  /admin/audit:
+    get:
+      summary: Append-only audit trail (admin)
+      responses:
+        "200": { description: OK }
+  /admin/users/{userId}/role:
+    put:
+      summary: Set an app role (admin)
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: OK }

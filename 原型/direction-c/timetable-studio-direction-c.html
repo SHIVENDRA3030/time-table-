@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" data-zcode-design data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timetable Studio · Direction C “Campus Pop”</title>
+<style>
+/* ══ Brand kit: Direction C “Campus Pop” ══
+   Friendly geometric for student-facing scheduling. Cobalt as the single
+   accent, cool neutral base, chunky color-block header, pill buttons,
+   soft 16px cards. Student can read it; admin can run it. */
+:root {
+  --bg: #F4F6FB;
+  --block: #101322;
+  --surface: #FFFFFF;
+  --ink-900: #101322;
+  --ink-700: #3A4157;
+  --ink-500: #6C7488;
+  --line: #E1E5F0;
+  --cobalt-700: #1D3AC4;
+  --cobalt-600: #2E4BE0;
+  --cobalt-100: #E4E9FF;
+  --amber-600: #B87A00;
+  --amber-100: #FFF1D6;
+  --ok-600: #1E7A4E;
+  --ok-100: #DFF3E8;
+  --danger-600: #C23A3A;
+  --danger-100: #FBE3E3;
+  --radius-card: 16px;
+  --radius-control: 999px;
+  --radius-tile: 16px;
+  --font-display: "Outfit", "Trebuchet MS", "Segoe UI Variable Display", "Segoe UI", sans-serif;
+  --font-body: "Outfit", "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-num: "Outfit", "Segoe UI", sans-serif;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  --content-max: 1180px;
+}
+html[data-theme="dark"] {
+  --bg: #0D0F1C;
+  --block: #101322;
+  --surface: #171A2B;
+  --ink-900: #F2F3FA;
+  --ink-700: #C6CADO;
+  --ink-500: #8A91A8;
+  --line: #262B44;
+  --cobalt-700: #7B90FF;
+  --cobalt-600: #6B84FF;
+  --cobalt-100: #1B2347;
+  --amber-600: #F2C14E;
+  --amber-100: #2E2410;
+  --ok-600: #6FCE9C;
+  --ok-100: #142A1E;
+  --danger-600: #F58C8C;
+  --danger-100: #331616;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink-900);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased; }
+.wrap { max-width: var(--content-max); margin: 0 auto; padding: 0 var(--space-5); }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+
+/* hero band: one bold color block */
+.hero { background: var(--block); color: #fff; }
+.hero-inner { padding: var(--space-6) 0; display: grid; grid-template-columns: 1fr auto; gap: var(--space-5); align-items: center; }
+.hero h1 { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+.hero p { margin: var(--space-2) 0 0; color: #B9C0D8; font-size: 14.5px; max-width: 52ch; }
+.hero-actions { display: flex; gap: var(--space-2); }
+
+/* pill nav */
+.nav { background: var(--surface); border-bottom: 1px solid var(--line); }
+.nav-inner { display: flex; align-items: center; gap: var(--space-2); height: 60px; }
+.brand { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; color: var(--ink-900); }
+.brand-mark { width: 34px; height: 34px; display: block; }
+.brand-name { font-family: var(--font-display); font-weight: 800; font-size: 16.5px; }
+.nav-pills { display: flex; gap: 6px; margin-left: var(--space-3); }
+.nav-pills a { text-decoration: none; color: var(--ink-700); font-weight: 600; font-size: 13.5px;
+  padding: 8px 16px; border-radius: var(--radius-control); }
+.nav-pills a:hover { background: var(--cobalt-100); color: var(--cobalt-700); }
+.nav-pills a[aria-current] { background: var(--cobalt-600); color: #fff; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
+.theme-btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink-700);
+  border-radius: var(--radius-control); padding: 7px 15px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.theme-btn:hover { color: var(--ink-900); border-color: var(--ink-500); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--cobalt-600); color: #fff;
+  display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+
+.section { padding: var(--space-5) 0 var(--space-6); }
+h2.title { font-family: var(--font-display); font-size: 19px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 var(--space-4); }
+
+/* metric tiles: chunky, one cobalt-tinted, one ink-tinted for rhythm */
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+.tile { border-radius: var(--radius-tile); padding: var(--space-4) var(--space-4); background: var(--surface); border: 1px solid var(--line); }
+.tile.tint-cobalt { background: var(--cobalt-100); border-color: transparent; }
+.tile.tint-ink { background: var(--block); border-color: transparent; color: #fff; }
+.tile .label { font-size: 12.5px; font-weight: 700; color: var(--ink-500); }
+.tile.tint-ink .label { color: #A9B0CC; }
+.tile .value { font-family: var(--font-num); font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-top: 2px; }
+.tile .delta { font-size: 12px; color: var(--ink-500); margin-top: 2px; }
+.tile.tint-ink .delta { color: #A9B0CC; }
+
+/* timetable board: cobalt header, soft cells */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; }
+.card-head { background: var(--cobalt-600); color: #fff; padding: var(--space-3) var(--space-4);
+  display: flex; justify-content: space-between; align-items: center; }
+.card-head .t { font-family: var(--font-display); font-weight: 800; font-size: 15px; }
+.card-head .s { font-family: var(--font-num); font-size: 12px; opacity: 0.85; }
+.board-grid { display: grid; grid-template-columns: 92px 1fr 1fr 1fr; }
+.bh { padding: 9px 12px; font-family: var(--font-num); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-500);
+  border-bottom: 1px solid var(--line); }
+.bb { padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.bb .slot { color: var(--ink-500); font-family: var(--font-num); font-size: 12.5px; }
+.bb:last-child { border-bottom: 0; }
+.class-tile { background: var(--cobalt-100); border-radius: 10px; padding: 9px 11px; }
+.class-tile.moved { background: var(--amber-100); }
+.class-tile .code { font-family: var(--font-num); font-weight: 800; font-size: 12px; color: var(--cobalt-700); }
+.class-tile.moved .code { color: var(--amber-600); }
+.class-tile .name { font-weight: 700; font-size: 13px; margin-top: 1px; }
+.class-tile .who { font-size: 12px; color: var(--ink-500); margin-top: 1px; }
+.free { color: var(--ink-500); font-size: 12.5px; align-self: center; }
+
+/* requests */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-3); }
+.req { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-4); }
+.req-top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.req-title { font-weight: 800; font-size: 14.5px; }
+.chip { border-radius: var(--radius-control); font-size: 12px; font-weight: 700; padding: 5px 13px; }
+.chip.applied { background: var(--ok-100); color: var(--ok-600); }
+.chip.pending { background: var(--amber-100); color: var(--amber-600); }
+.req-meta { color: var(--ink-500); font-size: 13px; margin-top: 3px; }
+.req-move { margin-top: var(--space-2); font-size: 13.5px; font-weight: 700; color: var(--cobalt-700); }
+.req-actions { display: flex; gap: var(--space-2); justify-content: flex-end; margin-top: var(--space-4); }
+
+/* buttons + inputs */
+.btn { font: inherit; font-size: 14px; font-weight: 700; border-radius: var(--radius-control);
+  padding: 10px 20px; cursor: pointer; border: 1px solid transparent; }
+.btn-primary { background: var(--cobalt-600); color: #fff; }
+.btn-primary:hover { background: var(--cobalt-700); }
+.btn-ghost { background: transparent; color: var(--ink-700); border-color: var(--line); }
+.btn-ghost:hover { color: var(--ink-900); border-color: var(--ink-500); }
+.btn-danger-ghost { background: transparent; color: var(--danger-600); border-color: var(--danger-100); }
+.btn-danger-ghost:hover { background: var(--danger-100); }
+.field { margin-bottom: var(--space-3); }
+.field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.input { width: 100%; font: inherit; font-size: 14.5px; color: var(--ink-900); background: var(--surface);
+  border: 1.5px solid var(--line); border-radius: var(--radius-control); padding: 11px 16px; }
+.input:focus { outline: none; border-color: var(--cobalt-600); box-shadow: 0 0 0 3px var(--cobalt-100); }
+
+/* login card */
+.login { max-width: 420px; }
+.login .card-head .s { font-family: var(--font-body); }
+.login-body { padding: var(--space-5); }
+.login h2 { font-family: var(--font-display); font-size: 21px; font-weight: 800; margin: 0 0 var(--space-4); }
+
+/* brand board */
+.board-sw { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-bottom: var(--space-4); }
+.swatch { border-radius: var(--radius-tile); overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+.swatch .fill { height: 56px; }
+.swatch .cap { padding: 9px 12px; font-family: var(--font-num); font-size: 12px; color: var(--ink-500); }
+.type-scale { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-4); }
+.type-scale .row { display: flex; align-items: baseline; gap: var(--space-4); padding: 9px 0; border-bottom: 1px solid var(--line); }
+.type-scale .row:last-child { border-bottom: 0; }
+.type-scale .tag { font-family: var(--font-num); font-size: 11px; color: var(--ink-500); width: 150px; flex-shrink: 0; }
+.logo-row { display: flex; align-items: center; gap: var(--space-3); }
+.logo-tile { width: 66px; height: 66px; border-radius: 18px; background: var(--cobalt-600); display: grid; place-items: center; }
+.logo-tile svg { width: 40px; height: 40px; }
+footer.note { border-top: 1px solid var(--line); margin-top: var(--space-6); padding: var(--space-4) 0 var(--space-6); color: var(--ink-500); font-size: 12.5px; }
+@media (max-width: 860px) {
+  .tiles, .board-sw { grid-template-columns: repeat(2, 1fr); }
+  .split, .hero-inner { grid-template-columns: 1fr; }
+  .board-grid { grid-template-columns: 72px 1fr 1fr 1fr; font-size: 12.5px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="37" height="37" rx="11" stroke="currentColor" stroke-width="2"/>
+        <rect x="9" y="9" width="9.5" height="9.5" rx="3" fill="currentColor"/>
+        <rect x="21.5" y="9" width="9.5" height="9.5" rx="3" fill="currentColor" opacity="0.4"/>
+        <rect x="9" y="21.5" width="9.5" height="9.5" rx="3" fill="currentColor" opacity="0.4"/>
+        <rect x="21.5" y="21.5" width="9.5" height="9.5" rx="3" fill="currentColor"/>
+      </svg>
+      <span class="brand-name">Timetable Studio</span>
+    </a>
+    <div class="nav-pills">
+      <a href="#" aria-current="page">Dashboard</a>
+      <a href="#">Timetables</a>
+      <a href="#">Admin</a>
+    </div>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeToggle" type="button">Dark</button>
+      <span class="avatar num">MA</span>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="wrap hero-inner">
+      <div>
+        <h1>Academic Command Center</h1>
+        <p>Track sections, rooms and teaching load, then publish the week your students actually see.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-primary" type="button">Bulk upload</button>
+        <button class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.35)" type="button">Export xlsx</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="section">
+      <div class="tiles">
+        <div class="tile"><div class="label">Active sections</div><div class="value num">2</div><div class="delta">CSE-A · CSE-B</div></div>
+        <div class="tile tint-cobalt"><div class="label">Scheduled classes</div><div class="value num">15</div><div class="delta">4 online</div></div>
+        <div class="tile"><div class="label">Faculty pool</div><div class="value num">3</div><div class="delta">1 linked by email</div></div>
+        <div class="tile tint-ink"><div class="label">Room usage R-101</div><div class="value num">60%</div><div class="delta">9 of 15 rows</div></div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <h2 class="title">CSE-A · Week grid</h2>
+      <div class="card">
+        <div class="card-head"><span class="t">CSE-A</span><span class="s">Mon 18 – Sat 23 Nov</span></div>
+        <div class="board-grid">
+          <div class="bh">Slot</div><div class="bh">Mon</div><div class="bh">Tue</div><div class="bh">Wed</div>
+          <div class="bb num">09:00<br>10:00</div>
+          <div class="bb"><div class="class-tile"><span class="code">CS101</span><div class="name">Data Structures</div><div class="who">Dr. Anita Sharma · R-101</div></div></div>
+          <div class="bb"><div class="class-tile moved"><span class="code">CS101 · moved</span><div class="name">Data Structures</div><div class="who">approved 11/18 · R-101</div></div></div>
+          <div class="bb"><div class="class-tile"><span class="code">CS101</span><div class="name">Data Structures</div><div class="who">R-101</div></div></div>
+          <div class="bb num">12:00<br>13:00</div>
+          <div class="bb free">Free</div>
+          <div class="bb"><div class="class-tile"><span class="code">CS201</span><div class="name">Algorithms</div><div class="who">R-101</div></div></div>
+          <div class="bb"><div class="class-tile"><span class="code">CS101L</span><div class="name">DS Lab</div><div class="who">Prof. Rajesh Iyer · LAB-1</div></div></div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="req">
+          <div class="req-top"><span class="req-title">Mobile Tester Faculty · reschedule</span><span class="chip applied">applied</span></div>
+          <div class="req-meta">CS101 Data Structures · CSE-A · was Mon 09:00–10:00</div>
+          <div class="req-move">Now Tue 10:00–11:00, room unchanged</div>
+          <div class="req-meta">“Conflicts with a committee meeting.”</div>
+          <div class="req-actions"><button class="btn btn-ghost" type="button">Revert</button></div>
+        </div>
+        <div class="req">
+          <div class="req-top"><span class="req-title">Dr. Anita Sharma · reschedule</span><span class="chip pending">pending</span></div>
+          <div class="req-meta">CS101 · CSE-A · was Tue 09:00–10:00</div>
+          <div class="req-meta">Reason: hospital appointment</div>
+          <div class="req-actions">
+            <button class="btn btn-danger-ghost" type="button">Reject</button>
+            <button class="btn btn-primary" type="button">Approve</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="split" style="align-items:start;">
+        <div>
+          <div class="card login">
+            <div class="card-head"><span class="t">Sign in</span><span class="s">students · faculty · office</span></div>
+            <div class="login-body">
+              <div class="field"><label for="em">Email</label><input class="input" id="em" type="email" value="mobile.admin@ttstudio.dev"></div>
+              <div class="field"><label for="pw">Password</label><input class="input" id="pw" type="password" value="············"></div>
+              <button class="btn btn-primary" style="width:100%" type="button">Sign in</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h2 class="title">Brand kit</h2>
+          <div class="board-sw">
+            <div class="swatch"><div class="fill" style="background:var(--cobalt-600)"></div><div class="cap">cobalt-600 · #2E4BE0</div></div>
+            <div class="swatch"><div class="fill" style="background:var(--block)"></div><div class="cap">block · #101322</div></div>
+            <div class="swatch"><div class="fill" style="background:var(--cobalt-100)"></div><div class="cap">cobalt-100 · #E4E9FF</div></div>
+            <div class="swatch"><div class="fill" style="background:var(--amber-100)"></div><div class="cap">moved tint · #FFF1D6</div></div>
+          </div>
+          <div class="type-scale">
+            <div class="row"><span class="tag">display / 32</span><span style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.02em;">Academic Command Center</span></div>
+            <div class="row"><span class="tag">title / 19</span><span style="font-family:var(--font-display);font-size:18px;font-weight:800;">CSE-A · Week grid</span></div>
+            <div class="row"><span class="tag">body / 15</span><span>Track sections, rooms and teaching load in one place.</span></div>
+            <div class="row"><span class="tag">num / 30</span><span class="num" style="font-size:24px;font-weight:800;">15 classes · 60% R-101</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="note"><div class="wrap">Direction C “Campus Pop” · friendly geometric kit · demo rows use this workspace’s real sections (CSE-A) and the approved request from 11/18.</div></footer>
+
+<script>
+(function () {
+  var btn = document.getElementById("themeToggle");
+  var root = document.documentElement;
+  btn.addEventListener("click", function () {
+    var dark = root.getAttribute("data-theme") === "dark";
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+    btn.textContent = dark ? "Dark" : "Light";
+  });
+})();
+</script>
+</body>
+</html>

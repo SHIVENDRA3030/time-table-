@@ -1,59 +1,84 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+/* ─────────────────────────────────────────────────────────────
+   Timetable Studio — "Mono Circuit" design system v1.0
+   Ink-black foundations · warm paper neutrals · one Volt accent.
+   See design-brand-kit.md (§3 color, §4 type, §7 components, §8 motion).
+   ───────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400&display=swap');
 @import "tailwindcss";
+
+/* Tailwind v4 bridge: token-pure utilities (bg-surface, text-ink, bg-volt…). */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--text-1);
+  --color-ink-2: var(--text-2);
+  --color-ink-3: var(--text-3);
+  --color-volt: var(--accent);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+}
 
 :root {
   color-scheme: light;
-  --bg-start: #f8f2e7;
-  --bg-end: #dcebe7;
-  --bg-mid: #eef6f4;
-  --ink-900: #1f2b2a;
-  --ink-800: #2a3c3a;
-  --ink-700: #334948;
-  --ink-600: #4b6664;
-  --ink-500: #698482;
-  --surface: rgba(255, 255, 255, 0.78);
-  --surface-strong: rgba(255, 255, 255, 0.9);
-  --surface-stroke: rgba(113, 143, 140, 0.3);
-  --accent-700: #0f766e;
-  --accent-600: #0f9f95;
-  --accent-500: #14b8a6;
-  --accent-100: #ccfbf1;
-  --warning-600: #c67f00;
-  --danger-600: #be3f5d;
-  --ok-600: #1f8f56;
-  --nav-bg: #0f766ecc;
-  --top-gradient-soft: rgba(255, 255, 255, 0.9);
-  --top-gradient-accent: rgba(93, 181, 172, 0.18);
-  --scroll-thumb: rgba(24, 118, 110, 0.35);
-  --scroll-track: rgba(255, 255, 255, 0.35);
+
+  /* color: light (§3.3) */
+  --bg: #F4F3EE;
+  --surface: #FFFFFF;
+  --surface-2: #EAE9E2;
+  --line: #D8D6CC;
+  --text-1: #101210;
+  --text-2: #5C6158;
+  --text-3: #565B52;
+  --accent: #D7F524;          /* Signal Volt — the only accent */
+  --accent-ink: #101210;      /* text on Volt fills */
+  --ok: #2F7D4F;
+  --warn: #8A5A00;
+  --danger: #C0362C;
+  --info: #2456A6;
+
+  /* type (§4) */
+  --font-display: "Archivo", sans-serif;
+  --font-ui: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --font-code: "JetBrains Mono", monospace;
+
+  /* space / radius / motion / elevation */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+  --r-sm: 8px; --r-md: 12px;
+  --ease: cubic-bezier(.2, 0, 0, 1);          /* circuit-trace in */
+  --ease-exit: cubic-bezier(.4, 0, 1, 1);     /* exit */
+  --dur-fast: 120ms; --dur-base: 200ms; --dur-slow: 320ms;
+  --shadow-1: 0 1px 2px rgba(16, 18, 16, .06);
+  --shadow-2: 0 2px 8px rgba(16, 18, 16, .08);
+  --shadow-3: 0 8px 32px rgba(16, 18, 16, .14);
+  --shadow-4: 0 16px 64px rgba(16, 18, 16, .20);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg-start: #020617;
-  --bg-mid: #070e1c;
-  --bg-end: #0f172a;
-  --ink-900: #ffffff;
-  --ink-800: #f1f5f9;
-  --ink-700: #e2e8f0;
-  --ink-600: #cbd5e1;
-  --ink-500: #94a3b8;
-  --surface: rgba(15, 23, 42, 0.7);
-  --surface-strong: rgba(15, 23, 42, 0.95);
-  --surface-stroke: rgba(255, 255, 255, 0.12);
-  --accent-700: #115e59;
-  --accent-600: #14b8a6;
-  --accent-500: #2dd4bf;
-  --accent-100: rgba(45, 212, 191, 0.15);
-  --warning-600: #fbbf24;
-  --danger-600: #f43f5e;
-  --ok-600: #34d399;
-  --nav-bg: rgba(2, 6, 23, 0.85);
-  --top-gradient-soft: rgba(255, 255, 255, 0.04);
-  --top-gradient-accent: rgba(45, 212, 191, 0.05);
-  --scroll-thumb: rgba(255, 255, 255, 0.2);
-  --scroll-track: rgba(255, 255, 255, 0.03);
+  --bg: #101210;
+  --surface: #1C1F1B;
+  --surface-2: #20241E;
+  --line: #2A2D27;
+  --text-1: #F4F3EE;
+  --text-2: #A6AB9F;
+  --text-3: #8A8F85;
+  --ok: #7BC496;
+  --warn: #E0A93E;
+  --danger: #E8837A;
+  --info: #8FB4E8;
+  /* dark mode favors surface steps over shadows */
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, .4);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, .5);
+  --shadow-3: 0 12px 40px rgba(0, 0, 0, .6);
+  --shadow-4: 0 20px 80px rgba(0, 0, 0, .7);
 }
+
 
 * {
   box-sizing: border-box;
@@ -67,24 +92,27 @@ body,
 
 body {
   margin: 0;
-  color: var(--ink-900);
-  font-family: "Space Grotesk", sans-serif;
-  background:
-    radial-gradient(circle at 8% 5%, var(--top-gradient-soft) 0%, rgba(255, 255, 255, 0) 36%),
-    radial-gradient(circle at 92% 10%, var(--top-gradient-accent) 0%, rgba(93, 181, 172, 0) 38%),
-    linear-gradient(130deg, var(--bg-start) 0%, var(--bg-mid) 48%, var(--bg-end) 100%);
-  background-attachment: fixed;
-  transition: background-color 180ms ease, color 180ms ease, background-image 220ms ease;
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 22px;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
 }
 
-h1,
-h2,
-h3,
-h4 {
+/* Display = Archivo, tight tracking (§4). H3 is Inter 600 per §4.1. */
+h1, h2 {
   margin: 0;
-  font-family: "Fraunces", serif;
+  font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
+}
+
+h3, h4 {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 600;
 }
 
 p {
@@ -103,144 +131,851 @@ textarea {
 }
 
 ::selection {
-  background: rgba(20, 184, 166, 0.3);
-  color: var(--ink-900);
+  background: color-mix(in oklab, var(--text-1) 14%, transparent);
 }
 
-.noise-overlay {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  opacity: 0.08;
-  background-image:
-    linear-gradient(0deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%230f766e' stroke-opacity='.08'%3E%3Cpath d='M16 16h28v28H16zM92 16h20v20H92zM48 64h18v18H48zM112 70h34v34h-34zM20 110h16v16H20zM70 118h22v22H70z'/%3E%3C/g%3E%3C/svg%3E");
-  mix-blend-mode: soft-light;
-  z-index: -1;
+:focus-visible {
+  outline: 2px solid var(--text-1);
+  outline-offset: 2px;
 }
 
-.glass-panel {
+:root[data-theme="dark"] :focus-visible {
+  outline-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Cards (§7.2): flat, hairline, Level-1 shadow. No glass. ── */
+.card {
   background: var(--surface);
-  border: 1px solid var(--surface-stroke);
-  border-radius: 1rem;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 16px 45px rgba(23, 57, 54, 0.11);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-1);
 }
 
-.glass-panel-strong {
-  background: var(--surface-strong);
-  border: 1px solid color-mix(in oklab, var(--surface-stroke) 80%, transparent);
-  border-radius: 1rem;
-  box-shadow: 0 10px 35px rgba(16, 49, 45, 0.12);
+.card-strong {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-2);
 }
 
 .section-title {
-  font-size: clamp(1.55rem, 2.8vw, 2.35rem);
-  line-height: 1.05;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 2.8vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .section-subtitle {
-  margin-top: 0.65rem;
-  color: var(--ink-600);
+  margin-top: var(--sp-2);
+  color: var(--text-2);
   max-width: 68ch;
 }
 
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.75rem;
-  padding: 0.7rem 1.05rem;
-  border: 1px solid rgba(9, 89, 82, 0.4);
-  background: linear-gradient(160deg, var(--accent-600) 0%, var(--accent-700) 100%);
-  color: #ffffff;
-  font-weight: 600;
-  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.02);
-  box-shadow: 0 12px 26px rgba(15, 118, 110, 0.3);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-muted {
-  border-radius: 0.75rem;
-  padding: 0.65rem 0.95rem;
-  border: 1px solid color-mix(in oklab, var(--ink-600) 26%, transparent);
-  background: color-mix(in oklab, var(--surface-strong) 88%, transparent);
-  color: var(--ink-700);
-  transition: background 160ms ease, border-color 160ms ease;
-}
-
-.btn-muted:hover {
-  border-color: rgba(15, 118, 110, 0.5);
-  background: color-mix(in oklab, var(--accent-100) 35%, var(--surface-strong));
-}
-
+/* ── Buttons (§7.1). Height 36, radius 8, Inter 500. ── */
+.btn-primary,
+.btn-volt,
+.btn-secondary,
+.btn-ghost,
 .btn-danger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
-  padding: 0.65rem 0.95rem;
-  border: 1px solid color-mix(in oklab, var(--danger-600) 52%, transparent);
-  background: color-mix(in oklab, var(--danger-600) 24%, var(--surface-strong));
-  color: var(--danger-600);
-  font-weight: 600;
-  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease;
+  gap: var(--sp-2);
+  height: 36px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease);
+}
+
+.btn-primary:active,
+.btn-volt:active,
+.btn-secondary:active,
+.btn-ghost:active,
+.btn-danger:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled,
+.btn-volt:disabled,
+.btn-secondary:disabled,
+.btn-ghost:disabled,
+.btn-danger:disabled {
+  opacity: 0.4;
+}
+
+/* Primary = ink fill, paper text. Inverts automatically per theme. */
+.btn-primary {
+  background: var(--text-1);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: color-mix(in oklab, var(--text-1) 88%, var(--bg));
+}
+
+/* Volt = the single accent. Max 1 per view (§3.3 accent budget). */
+.btn-volt {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 500;
+}
+
+.btn-volt:hover {
+  background: color-mix(in oklab, var(--accent) 92%, var(--accent-ink));
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-1);
+  border-color: color-mix(in oklab, var(--text-1) 40%, transparent);
+}
+
+.btn-secondary:hover {
+  background: var(--surface-2);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-2);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+/* Danger: quiet until hovered — then it looks dangerous (§7.1). */
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: color-mix(in oklab, var(--danger) 40%, transparent);
 }
 
 .btn-danger:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.04);
-  border-color: color-mix(in oklab, var(--danger-600) 70%, transparent);
+  background: var(--danger);
+  color: var(--bg);
+  border-color: var(--danger);
 }
 
+/* 32px square icon-only button (web minimum touch target). */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.icon-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+/* ── Chips & badges (§7.6): 24px, semantic text + 8% fill. ── */
 .chip {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 var(--sp-3);
   border-radius: 999px;
-  border: 1px solid rgba(109, 141, 137, 0.35);
-  background: rgba(255, 255, 255, 0.58);
-  color: var(--ink-700);
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1;
-  padding: 0.4rem 0.65rem;
+  border: none;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: default;
+}
+
+button.chip,
+a.chip {
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 
 .chip.is-active {
-  color: var(--ink-900);
-  border-color: color-mix(in oklab, var(--accent-600) 52%, var(--surface-stroke));
-  background: color-mix(in oklab, var(--accent-100) 62%, var(--surface-strong));
+  background: var(--text-1);
+  color: var(--bg);
 }
 
+.chip-ok {
+  color: var(--ok);
+  background: color-mix(in oklab, var(--ok) 8%, transparent);
+}
+
+.chip-warn {
+  color: var(--warn);
+  background: color-mix(in oklab, var(--warn) 8%, transparent);
+}
+
+.chip-danger {
+  color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 8%, transparent);
+}
+
+.chip-info {
+  color: var(--info);
+  background: color-mix(in oklab, var(--info) 8%, transparent);
+}
+
+/* Mono count badge (tabs, nav). */
+.badge-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+/* ── Tabs (§14): underline, active = ink text + Volt 2px rule. ── */
+.tabs {
+  display: flex;
+  align-items: stretch;
+  gap: var(--sp-4);
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) 2px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.tab:hover {
+  color: var(--text-1);
+}
+
+.tab.is-active {
+  color: var(--text-1);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Forms (§7.5): labels above, 40px inputs. ── */
 .input-shell {
   width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid color-mix(in oklab, var(--ink-600) 32%, transparent);
-  background: color-mix(in oklab, var(--surface-strong) 95%, transparent);
-  color: var(--ink-900);
-  padding: 0.68rem 0.82rem;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  height: 40px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-1);
+  padding: 0 var(--sp-3);
+  font-size: 14px;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+
+textarea.input-shell {
+  height: auto;
+  padding: var(--sp-2) var(--sp-3);
+  line-height: 22px;
+  resize: vertical;
+}
+
+.input-shell::placeholder {
+  color: var(--text-3);
+}
+
+.input-shell:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .input-shell:focus-visible {
   outline: none;
-  border-color: rgba(15, 118, 110, 0.7);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
+  border-color: var(--text-1);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--text-1) 12%, transparent);
 }
 
+/* ── Data helpers: mono numerals everywhere data appears (§0.3). ── */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.caption {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+/* Tables (§7.4): caption headers, 44px rows, hover = surface-2. */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th {
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: var(--sp-2) var(--sp-3);
+  height: 44px;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 55%, transparent);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+  background: var(--surface-2);
+}
+
+.data-table .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ── Metric card: flat, mono numerals set by the page. ── */
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-1);
+  padding: var(--sp-4);
+}
+
+/* ── Alerts: semantic text + 8% fill, never solid blocks (§3.2). ── */
+.alert-success,
+.alert-warning,
+.alert-danger,
+.alert-info {
+  border-radius: var(--r-sm);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+
+.alert-success {
+  color: var(--ok);
+  background: color-mix(in oklab, var(--ok) 8%, transparent);
+  border-color: color-mix(in oklab, var(--ok) 24%, transparent);
+}
+
+.alert-warning {
+  color: var(--warn);
+  background: color-mix(in oklab, var(--warn) 8%, transparent);
+  border-color: color-mix(in oklab, var(--warn) 24%, transparent);
+}
+
+.alert-danger {
+  color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 8%, transparent);
+  border-color: color-mix(in oklab, var(--danger) 24%, transparent);
+}
+
+.alert-info {
+  color: var(--info);
+  background: color-mix(in oklab, var(--info) 8%, transparent);
+  border-color: color-mix(in oklab, var(--info) 24%, transparent);
+}
+
+/* ── Modal (§6 Level 4). Solid scrim — no glass blur. ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  background: rgba(16, 18, 16, 0.4);
+  animation: modal-bg-in var(--dur-base) var(--ease);
+}
+
+.modal-panel {
+  position: relative;
+  width: 92vw;
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-4);
+  padding: var(--sp-6);
+  animation: modal-in var(--dur-slow) var(--ease);
+}
+
+/* ── Toast: flat surface, semantic text (§3.2). ── */
+.toast-container {
+  position: fixed;
+  bottom: var(--sp-6);
+  right: var(--sp-6);
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  min-width: 260px;
+  max-width: 380px;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-3);
+  animation: toast-in var(--dur-base) var(--ease);
+}
+
+.toast.is-success {
+  color: var(--ok);
+  background: color-mix(in oklab, var(--ok) 8%, var(--surface));
+  border-color: color-mix(in oklab, var(--ok) 24%, transparent);
+}
+
+.toast.is-error {
+  color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 8%, var(--surface));
+  border-color: color-mix(in oklab, var(--danger) 24%, transparent);
+}
+
+.toast.is-info {
+  color: var(--info);
+  background: color-mix(in oklab, var(--info) 8%, var(--surface));
+  border-color: color-mix(in oklab, var(--info) 24%, transparent);
+}
+
+/* ── Dashboard bar charts (§9): Chaos fill, mono labels. ── */
+.hbar {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.hbar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: var(--text-1);
+  width: 0%;
+  animation: grow-bar 550ms var(--ease) forwards;
+}
+
+.hbar.is-warn > span {
+  background: var(--warn);
+}
+
+/* ── App chrome (§7.3): sidebar 240 → 64 rail → mobile tab bar. ── */
+.app-shell {
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 100vh;
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+  transition: width var(--dur-base) var(--ease);
+}
+
+@media (max-width: 1199px) {
+  .sidebar {
+    width: 64px;
+    align-items: center;
+  }
+
+  .sidebar .rail-hide {
+    display: none;
+  }
+
+  .sidebar-item {
+    justify-content: center;
+    padding: 0;
+    width: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: 36px;
+  width: 100%;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.sidebar-item:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+.sidebar-item.is-active {
+  background: var(--surface-2);
+  color: var(--text-1);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: 56px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-4);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Mobile bottom tab bar: Chaos Black, Volt 2px top rule on active (§7.3). */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  background: #101210;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (min-width: 768px) {
+  .tabbar {
+    display: none;
+  }
+}
+
+.tabbar-item {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 56px;
+  border: none;
+  background: transparent;
+  color: rgba(244, 243, 238, 0.64);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tabbar-item.is-active {
+  color: #F4F3EE;
+}
+
+.tabbar-item.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 2px;
+  background: var(--accent);
+}
+
+.tabbar-item.is-active .tabbar-icon {
+  color: var(--accent);
+}
+
+/* ── Chip monogram (§2): the one brand asset. Tile inverts per theme,
+       the Volt node dot never changes. ── */
+.chip-monogram {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 7px; /* 22% of tile — chip-pin aesthetic */
+  background: var(--text-1);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.chip-monogram-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--accent); /* never recolor */
+  align-self: flex-end;
+}
+
+/* ── Timetable grid (§5.4): days as columns, periods as rows,
+       mono coordinates (A1…F8), hairline structure. ── */
+.tt-grid {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.tt-grid th,
+.tt-grid td {
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  padding: 0;
+}
+
+.tt-grid th:last-child,
+.tt-grid td:last-child {
+  border-right: none;
+}
+
+.tt-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+  padding: var(--sp-2) var(--sp-3);
+  text-align: left;
+}
+
+.tt-grid .tt-time {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--surface);
+  width: 112px;
+  min-width: 112px;
+  padding: var(--sp-2) var(--sp-3);
+  vertical-align: top;
+}
+
+.tt-grid thead th.tt-corner {
+  left: 0;
+  z-index: 30;
+}
+
+.tt-grid td.tt-cell {
+  height: 104px;
+  padding: var(--sp-1);
+  vertical-align: top;
+}
+
+.tt-coord {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.02em;
+  color: var(--text-3);
+}
+
+.tt-entry {
+  position: relative;
+  height: 100%;
+  padding: var(--sp-2);
+  border-radius: 6px;
+}
+
+/* Live cell (realtime-updated): 1px Volt left border — never a fill. */
+.tt-entry-live {
+  box-shadow: inset 1px 0 0 var(--accent);
+}
+
+/* Conflict state: Danger 8% fill + dashed border (§5.4). */
+.tt-conflict {
+  background: color-mix(in oklab, var(--danger) 8%, transparent);
+  outline: 1px dashed var(--danger);
+  outline-offset: -1px;
+}
+
+/* Drag-and-drop states (§8): ghost slot = Volt 8% fill. */
+.tt-drop {
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+}
+
+.tt-dragging {
+  opacity: 0.35;
+}
+
+/* ── Cell actions ── */
+.cell-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.timetable-cell:hover .cell-actions,
+.timetable-card:hover .cell-actions {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .cell-actions {
+    opacity: 1;
+  }
+}
+
+.cell-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.cell-action-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+.cell-action-btn.is-danger:hover {
+  background: color-mix(in oklab, var(--danger) 8%, var(--surface));
+  color: var(--danger);
+  border-color: color-mix(in oklab, var(--danger) 40%, transparent);
+}
+
+/* ── Add-class button in free cells ── */
+.add-class-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 72px;
+  border-radius: var(--r-sm);
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  gap: 6px;
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.add-class-btn:hover {
+  border-color: color-mix(in oklab, var(--text-1) 40%, transparent);
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+/* ── Empty states (§10.2): mono glyph + one line + one action. ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-12) var(--sp-6);
+  text-align: center;
+  color: var(--text-2);
+}
+
+.empty-state-glyph {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--text-3);
+}
+
+/* ── Confirm dialog footer ── */
+.confirm-actions {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: flex-end;
+  margin-top: var(--sp-6);
+}
+
+/* ── Scrollbars ── */
 .soft-scroll {
   scrollbar-width: thin;
-  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  scrollbar-color: color-mix(in oklab, var(--text-3) 40%, transparent) transparent;
 }
 
 .soft-scroll::-webkit-scrollbar {
@@ -249,31 +984,19 @@ textarea {
 }
 
 .soft-scroll::-webkit-scrollbar-thumb {
-  background: var(--scroll-thumb);
-  border-radius: 99px;
+  background: color-mix(in oklab, var(--text-3) 40%, transparent);
+  border-radius: 999px;
 }
 
 .soft-scroll::-webkit-scrollbar-track {
-  background: var(--scroll-track);
+  background: transparent;
 }
 
+/* ── Motion (§8): circuit-trace — fast in, linear ease-out, no bounce. ── */
 .stagger-in {
   opacity: 0;
   transform: translateY(8px);
-  animation: reveal-up 420ms ease forwards;
-}
-
-.pulse-ring {
-  position: relative;
-}
-
-.pulse-ring::after {
-  content: "";
-  position: absolute;
-  inset: -0.35rem;
-  border: 1px solid rgba(20, 184, 166, 0.4);
-  border-radius: inherit;
-  animation: pulse-ring 2.2s ease-out infinite;
+  animation: reveal-up var(--dur-slow) var(--ease) forwards;
 }
 
 @keyframes reveal-up {
@@ -288,80 +1011,41 @@ textarea {
   }
 }
 
-@keyframes pulse-ring {
-  0% {
-    transform: scale(0.98);
-    opacity: 0.85;
-  }
-
-  70% {
-    transform: scale(1.05);
-    opacity: 0;
-  }
-
-  100% {
-    transform: scale(1.06);
-    opacity: 0;
-  }
-}
-
-/* Route-level micro transitions */
 .route-stage {
   position: relative;
 }
 
 .route-node {
-  animation: route-in 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: route-in var(--dur-base) var(--ease);
   transform-origin: 50% 0%;
 }
 
 .route-node.is-leaving {
-  animation: route-out 150ms ease forwards;
+  animation: route-out 150ms var(--ease-exit) forwards;
 }
 
 @keyframes route-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.995);
-    filter: blur(3px);
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
+    transform: translateY(0);
   }
 }
 
 @keyframes route-out {
   from {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 
   to {
     opacity: 0;
-    transform: translateY(-5px) scale(0.997);
+    transform: translateY(-5px);
   }
-}
-
-/* Lightweight dashboard bar charts */
-.hbar {
-  position: relative;
-  border: 1px solid color-mix(in oklab, var(--surface-stroke) 70%, transparent);
-  border-radius: 999px;
-  overflow: hidden;
-  height: 10px;
-  background: color-mix(in oklab, var(--surface-strong) 88%, transparent);
-}
-
-.hbar>span {
-  position: absolute;
-  inset: 0 auto 0 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--accent-500), var(--accent-700));
-  width: 0%;
-  animation: grow-bar 550ms ease forwards;
 }
 
 @keyframes grow-bar {
@@ -374,35 +1058,9 @@ textarea {
   }
 }
 
-.metric-card {
-  background:
-    linear-gradient(145deg,
-      color-mix(in oklab, var(--metric-accent, var(--accent-500)) 18%, var(--surface-strong)),
-      var(--surface-strong));
-  border-color: color-mix(in oklab, var(--metric-accent, var(--accent-500)) 26%, var(--surface-stroke));
-}
-
-.alert-success {
-  border: 1px solid color-mix(in oklab, var(--ok-600) 44%, var(--surface-stroke));
-  background: color-mix(in oklab, var(--ok-600) 14%, var(--surface-strong));
-  color: var(--ok-600);
-}
-
-.alert-warning {
-  border: 1px solid color-mix(in oklab, var(--warning-600) 44%, var(--surface-stroke));
-  background: color-mix(in oklab, var(--warning-600) 14%, var(--surface-strong));
-  color: var(--warning-600);
-}
-
-.alert-danger {
-  border: 1px solid color-mix(in oklab, var(--danger-600) 44%, var(--surface-stroke));
-  background: color-mix(in oklab, var(--danger-600) 14%, var(--surface-strong));
-  color: var(--danger-600);
-}
-
-/* Mobile search sheet animation */
+/* Mobile search sheet */
 .sheet-up {
-  animation: sheet-up 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: sheet-up var(--dur-base) var(--ease);
 }
 
 @keyframes sheet-up {
@@ -417,8 +1075,63 @@ textarea {
   }
 }
 
-@media (max-width: 768px) {
-  .section-subtitle {
-    max-width: 100%;
+@keyframes modal-bg-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Print: clean paper output for the timetable grid. */
+@media print {
+  header,
+  footer,
+  .sidebar,
+  .topbar,
+  .tabbar,
+  .toast-container,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .card,
+  .card-strong,
+  .glass-panel,
+  .glass-panel-strong {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: 1px solid #d8d6cc !important;
+  }
+
+  main {
+    padding: 0 !important;
   }
 }

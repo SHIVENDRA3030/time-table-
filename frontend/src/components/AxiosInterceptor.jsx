@@ -1,19 +1,22 @@
 import { useLayoutEffect } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import authClient from '../services/auth';
 import api from '../services/api';
 
 const AxiosInterceptor = ({ children }) => {
-    const { getToken, isLoaded, isSignedIn } = useAuth();
-
     useLayoutEffect(() => {
-        if (!isLoaded || !isSignedIn) return;
-
         const requestInterceptor = api.interceptors.request.use(
             async (config) => {
-                const token = await getToken();
-                if (token) {
-                    config.headers = config.headers ?? {};
-                    config.headers.Authorization = `Bearer ${token}`;
+                // Neon Auth session JWT (~15 min expiry); token() re-fetches when stale.
+                try {
+                    const { data } = await authClient.token();
+                    // Shape differs across @neon/auth versions: data.token or data.session.token
+                    const token = data?.token ?? data?.session?.token;
+                    if (token) {
+                        config.headers = config.headers ?? {};
+                        config.headers.Authorization = `Bearer ${token}`;
+                    }
+                } catch {
+                    // No session — send unauthenticated and let the API answer 401.
                 }
                 return config;
             },
@@ -25,9 +28,7 @@ const AxiosInterceptor = ({ children }) => {
         return () => {
             api.interceptors.request.eject(requestInterceptor);
         };
-    }, [getToken, isLoaded, isSignedIn]);
-
-    if (!isLoaded) return null;
+    }, []);
 
     return children;
 };

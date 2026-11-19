@@ -5,3 +5,8 @@ dist/
 .DS_Store
 coverage/
 build/
+.neon
+
+# local tool state and runtime artifacts
+.zcode/
+backend/tmp/
